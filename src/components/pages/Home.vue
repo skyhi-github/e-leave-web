@@ -40,6 +40,18 @@
           >
          <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-calendar-arrow-left" value="option-1">Apply Leave</v-tab>
          <v-divider></v-divider>
+         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-file-chart" value="option-4" disabled>Report</v-tab>
+         <v-divider></v-divider>
+         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-calendar-month" value="option-5" disabled>Calendar</v-tab>
+         <v-divider></v-divider>
+         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-rss-box" value="option-6" disabled>Announcement</v-tab>
+         <v-divider></v-divider>
+         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-cash-fast" value="option-7" disabled>Payslip</v-tab>
+         <v-divider></v-divider>
+         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-account-check" value="option-8" disabled>Attendance</v-tab>
+         <v-divider></v-divider>
+         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-account-group" value="option-9" disabled>Teams</v-tab>
+         <v-divider></v-divider>
          <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-account-circle" value="option-2"  @click="getEmployee(); getProfile(); getTeam()">Profile</v-tab>
         </v-tabs>
       </v-navigation-drawer>
@@ -54,14 +66,7 @@
               Leave Record 
              <v-btn :loading="loading" color="#97BBE3" icon="mdi-refresh" size="large" variant="flat"  @click="getUserLeaveApplication"></v-btn>
              <v-btn color="#97BBE3" icon="mdi-plus" size="large" variant="flat" @click="openDialog"></v-btn>
-             <v-chip
-                class="ma-2"
-                color="green-darken-4"
-                label
-                style="float: right;"
-              >
-                <v-icon>mdi-download</v-icon>
-              </v-chip>
+             <v-btn :loading="loading" color="#97BBE3" icon="mdi-download" style = "float: right" size="large" variant="flat"  @click="downloadLeave"></v-btn>
             </v-card-title>
           <v-table>
             <thead>
@@ -540,6 +545,7 @@
 
 import axios from 'axios';
 import FileSaver from 'file-saver';
+import * as XLSX from 'xlsx';
 
 export default {
 
@@ -869,6 +875,13 @@ methods: {
   disableSend() {
     return !this.reason;
   },
+
+  downloadLeave() {
+    const data = this.leave.map(item => ({
+      "Created At" : item.create_at,
+
+    }))
+  }
 
 },
 
