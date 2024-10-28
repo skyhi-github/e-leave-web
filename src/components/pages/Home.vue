@@ -40,17 +40,17 @@
           >
          <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-calendar-arrow-left" value="option-1">Apply Leave</v-tab>
          <v-divider></v-divider>
-         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-file-chart" value="option-4" disabled>Report</v-tab>
+         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-file-chart" value="option-4" disabled><v-badge floating color="yellow-lighten-1" content="Coming Soon"></v-badge>Report</v-tab>
          <v-divider></v-divider>
-         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-calendar-month" value="option-5" disabled>Calendar</v-tab>
+         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-calendar-month" value="option-5" disabled><v-badge floating color="yellow-lighten-1" content="Coming Soon"></v-badge>Calendar</v-tab>
          <v-divider></v-divider>
-         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-rss-box" value="option-6" disabled>Announcement</v-tab>
+         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-rss-box" value="option-6" disabled><v-badge floating color="yellow-lighten-1" content="Coming Soon"></v-badge>Announcement</v-tab>
          <v-divider></v-divider>
-         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-cash-fast" value="option-7" disabled>Payslip</v-tab>
+         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-cash-fast" value="option-7" disabled><v-badge floating color="yellow-lighten-1" content="Coming Soon"></v-badge>Payslip</v-tab>
          <v-divider></v-divider>
-         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-account-check" value="option-8" disabled>Attendance</v-tab>
+         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-account-check" value="option-8" ><v-badge floating color="green" content="New" class ="attendance"></v-badge>Attendance</v-tab>
          <v-divider></v-divider>
-         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-account-group" value="option-9" disabled>Teams</v-tab>
+         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-account-group" value="option-9" disabled><v-badge floating color="yellow-lighten-1" content="Coming Soon"></v-badge>Teams</v-tab>
          <v-divider></v-divider>
          <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-account-circle" value="option-2"  @click="getEmployee(); getProfile(); getTeam()">Profile</v-tab>
         </v-tabs>
@@ -66,7 +66,7 @@
               Leave Record 
              <v-btn :loading="loading" color="#97BBE3" icon="mdi-refresh" size="large" variant="flat"  @click="getUserLeaveApplication"></v-btn>
              <v-btn color="#97BBE3" icon="mdi-plus" size="large" variant="flat" @click="openDialog"></v-btn>
-             <v-btn :loading="loading" color="#97BBE3" icon="mdi-download" style = "float: right" size="large" variant="flat"  @click="downloadLeave"></v-btn>
+             <v-btn :loading="downloading" color="#97BBE3" icon="mdi-download" style = "float: right" size="large" variant="flat"  @click="downloadLeave"></v-btn>
             </v-card-title>
           <v-table>
             <thead>
@@ -495,6 +495,267 @@
     </v-card>
   </v-dialog>
         </v-tabs-window-item>
+
+        <v-tabs-window-item value="option-8">
+
+        <v-card color="#97BBE3">
+          <v-card-title style="width: 53.75rem" class="exo-2-leave-history">
+              Attendance
+            <v-btn color="#97BBE3" icon="mdi-refresh" size="large" variant="flat" @click="openDialog"></v-btn>
+            <v-btn color="#97BBE3" icon="mdi-calendar-search" size="large" variant="flat" @click="openDialog"></v-btn>
+            <v-btn :loading="downloading" color="#97BBE3" icon="mdi-download" style = "float: right" size="large" variant="flat" @click="downloadLeave"></v-btn>
+            </v-card-title>
+            <v-data-table-server
+              v-model:items-per-page="itemsPerPage"
+              :headers="attendanceTableHeaders"
+              :items="serverItems"
+              :items-length="totalItems"
+              :loading="loading"
+              :search="search"
+              item-value="name"
+              @update:options="loadItems"
+            ></v-data-table-server>
+          <v-divider></v-divider>
+        </v-card>
+
+        <v-dialog v-model="applyLeaveDialog">
+
+            <v-fade-transition height="100%" hide-on-leave>
+              <v-card
+                class="mx-auto"
+                elevation="16"
+                width="31.25rem"
+                title="Create Leave Application"
+              >
+                <template v-slot:append>
+                  <v-btn icon="$close" variant="text" @click="closeDialog"></v-btn>
+                </template>
+
+                <v-divider></v-divider>
+
+                <div class="py-12 text-center">
+
+                  <v-form @keyup.esc="closeDialog" @keyup.enter="createLeaveApplication">
+                    <v-container>
+
+                      <v-card-title style="margin-top: -4.375rem;" class="text-h6 "></v-card-title>
+
+                      <v-row>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                        >
+                        <v-select
+                          v-model="select"
+                          :items="leaveTypes"
+                          label="Leave Type"
+                          variant="outlined"
+                          required
+                        >
+                    <template v-slot:selection="data">
+                      <v-chip
+                        :key="JSON.stringify(data.item)"
+                        v-bind="data.attrs"
+                        :disabled="data.disabled"
+                        :model-value="data.selected"
+                        size="large"
+                        @click:close="data.parent.selectItem(data.item)"
+                      >
+                        <template v-slot:prepend>
+                          <v-avatar class="bg-accent text-uppercase" style="color: palevioletred;" start>
+                            {{ data.item.title.slice(0, 1) }}
+                          </v-avatar>
+                        </template>
+                        {{ data.item.title }}
+                      </v-chip>
+                    </template>
+                        </v-select>
+                        </v-col>
+
+                        <v-col
+                          cols="12"
+                          sm="6"
+                        >
+                        <!-- <v-text-field v-model="balance"
+                                      v-if="select === 'Annual Leave'"
+                                      suffix="Day(s)"
+                                      variant="solo"
+                                      label="Balance"
+                                      readonly
+
+                        >
+
+                      </v-text-field> -->
+
+                        </v-col>
+
+                      </v-row>
+                      <v-row>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                        >
+                        <VueDatePicker v-model="startDate"
+                        :disabled-dates="disabledDates"
+                        :min-date="new Date()"
+                        :start-date="startMinDate"
+                        :start-time="{ hours: 7, minutes: 0 }"
+                        text-input
+                        teleport-center
+                        placeholder="From Date"
+                        input-class-name="dp-custom-input-range"
+                        :disabled-week-days="[7, 0]"
+                        @cleared="clearDuration"
+                        :is-24="false"
+                        :disabled="!select"
+                        time-picker-outline
+
+                        >
+
+                        <template #time-picker="{ time, updateTime }">
+                          <div class="custom-time-picker-component">
+                            <select
+                              class="select-input"
+                              :value="time.hours"
+                              @change="updateTime(+$event.target.value) "
+                            >
+                              <option
+                                v-for="h in startHoursArray"
+                                :key="h.value"
+                                :value="h.value">{{ h.text }}</option>
+                            </select>
+                            <select
+                              class="select-input"
+                              :value="time.minutes"
+                              @change="updateTime(+$event.target.value, false)"
+                            >
+                              <option
+                                v-for="m in startMinutesArray"
+                                :key="m.value"
+                                :value="m.value">{{ m.text }}</option>
+                            </select>
+                          </div>
+                        </template>
+
+                        </VueDatePicker>
+
+                        </v-col>
+
+                        <v-col
+                          cols="12"
+                          sm="6"
+                        >
+                        <VueDatePicker v-model="endDate"
+                        :disabled-dates="disabledDates"
+                        :min-date="minDate"
+                        :start-date="endMinDate"
+                        :start-time="{ hours: 16, minutes: 0 }"
+                        text-input
+                        teleport-center
+                        placeholder="End Date"
+                        input-class-name="dp-custom-input-range"
+                        :disabled-week-days="[7, 0]"
+                        @cleared="clearDuration"
+                        :is-24="false"
+                        :disabled="!startDate"
+                        time-picker-outline
+
+                        >
+
+                        <template #time-picker="{ time, updateTime }">
+                          <div class="custom-time-picker-component">
+                            <select
+                              class="select-input"
+                              :value="time.hours"
+                              @change="updateTime($event.target.value)"
+                            >
+                              <option
+                                v-for="h in endHoursArray"
+                                :disabled="h.value === 7 ? time.minutes === 0 : false"
+                                :key="h.value"
+                                :value="h.value">{{ h.text }}
+                              </option>
+                            </select>
+                            <select
+                              class="select-input"
+                              :value="time.minutes"
+                              @change="updateTime(+$event.target.value, false)"
+                            >
+                              <option
+                                v-for="m in endMinutesArray"
+                                :disabled="m.value === 0 ? time.hours === 7 : false"
+                                :key="m.value"
+                                :value="m.value">{{ m.text }}
+                              </option>
+                            </select>
+                          </div>
+                        </template>
+
+                        </VueDatePicker>
+
+                        </v-col>
+
+                      </v-row>
+
+                      <v-row>
+
+                        <v-col cols="12">
+                          <v-text-field
+                            v-model="reason"
+                            hint="Tell us your leave reason"
+                            label="Reason"
+                            variant="filled"
+                            clearable
+                            maxlength=100
+                            counter
+                            :disabled="!endDate"
+                          ></v-text-field>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </v-form>
+
+                </div>
+
+                <div class="pa-4 text-end">
+                  <v-btn
+                  class="me-2 text-none"
+                  color="pink"
+                  prepend-icon="mdi-send-circle"
+                  :loading="loading"
+                  size="x-large"
+                  variant="flat"
+                  @click="createLeaveApplication"
+                  :disabled="!reason"
+                  >
+                  Send
+                  </v-btn>
+                </div>
+              </v-card>
+            </v-fade-transition>
+
+        </v-dialog>
+
+        <v-snackbar
+        v-model="snackbar"
+        :timeout="2000"
+        color="success"
+        variant="tonal"
+        >
+        ✅ <b>Leave Created Success</b>
+        </v-snackbar>
+
+        <v-snackbar
+        v-model="snackbar_delete"
+        :timeout="2000"
+        color="error"
+        variant="tonal"
+        >
+        ❌ <b>Leave Created Success</b>
+        </v-snackbar>
+
+        </v-tabs-window-item>
+
       </v-tabs-window>
 
       </v-main>
@@ -554,6 +815,10 @@ name: 'Home',
 data() {
   return {
 
+    badgeOpacity: 1, // Initial opacity
+
+    attendanceTableHeaders: undefined,
+
     today: undefined,
 
     new_password: {},
@@ -585,6 +850,8 @@ data() {
     profileDialog: false,
 
     loading: false,
+
+    downloading: false,
 
     reason: null,
 
@@ -618,6 +885,15 @@ created() {
   this.getUser();
   this.getUserLeaveApplication();
   this.getToday();
+
+  this.attendanceTableHeaders = [
+        { title: 'Date', key: 'att_date', align: 'start' },
+        { title: 'Scan In 1', key: 'name', align: 'end', sortable: false },
+        { title: 'Scan Out 1', key: 'calories', align: 'end', sortable: false },
+        { title: 'Scan In 2 ', key: 'fat', align: 'end', sortable: false },
+        { title: 'Scan Out 2', key: 'carbs', align: 'end', sortable: false },
+      ],
+
   window.addEventListener('keydown', this.handleKey);
 
 
@@ -877,10 +1153,48 @@ methods: {
   },
 
   downloadLeave() {
-    const data = this.leave.map(item => ({
-      "Created At" : item.create_at,
+    this.downloading = true;
+    const leaveRecord = this.leave.map(leave => ({
+      "Created At" : leave.created_at,
+      "Employee ID" : leave.employee_id,
+      "Leave Type" : leave.leave_type,
+      "Start Date" : leave.start_date,
+      "End Date" : leave.end_date,
+      "Approver ID" : leave.approver_id,
+      "Reason" : leave.reason,  
+      "Status" : leave.status,
+    }));
+  
+    const ws = XLSX.utils.json_to_sheet(leaveRecord);
 
-    }))
+    const wb = XLSX.utils.book_new();
+      ws['!cols'] = [
+          { wch: 20 }, // A
+          { wch: 20 }, // B
+          { wch: 20 }, // C
+          { wch: 20 }, // D
+          { wch: 20 }, // E
+          { wch: 20 }, // F
+          { wch: 30 }, // G
+        ]
+      XLSX.utils.book_append_sheet(wb, ws, 'Record');
+
+      // Convert workbook to buffer (memory representation)
+      const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+      setTimeout(() => (this.downloading = false), 1000)
+
+      // Simulate a click on a hidden anchor element to trigger download
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+      link.download = `${this.user.employee_id}-E-Leave.xlsx`; // Set filename
+      link.style.display = 'none'; // Hide the anchor element
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up the temporary URL object
+      URL.revokeObjectURL(link.href);
+      document.body.removeChild(link);
+
   }
 
 },
@@ -1072,6 +1386,14 @@ cursor: pointer;
 
 tr:nth-child(even) {
 background-color: #f2f2f2;
+}
+
+@keyframes fadeIn { 
+  from { opacity: 0; } 
+}
+
+.attendance {
+  animation: fadeIn 1s infinite alternate;
 }
 
 .dp-custom-input {
