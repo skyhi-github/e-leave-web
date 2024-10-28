@@ -4,7 +4,7 @@
       dark
       prominent
     >
-      <v-toolbar-title class="lilita-one-regular">E-Leave</v-toolbar-title>
+      <v-toolbar-title class="lilita-one-regular">OneStation</v-toolbar-title>
 
       <v-spacer></v-spacer>
 
@@ -38,7 +38,7 @@
             color="primary"
             direction="vertical"
           >
-         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-calendar-arrow-left" value="option-1">Apply Leave</v-tab>
+         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-calendar-arrow-left" value="option-1">E-Leave</v-tab>
          <v-divider></v-divider>
          <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-file-chart" value="option-4" disabled><v-badge floating color="yellow-lighten-1" content="Coming Soon"></v-badge>Report</v-tab>
          <v-divider></v-divider>
@@ -501,20 +501,44 @@
         <v-card color="#97BBE3">
           <v-card-title style="width: 53.75rem" class="exo-2-leave-history">
               Attendance
-            <v-btn color="#97BBE3" icon="mdi-refresh" size="large" variant="flat" @click="openDialog"></v-btn>
-            <v-btn color="#97BBE3" icon="mdi-calendar-search" size="large" variant="flat" @click="openDialog"></v-btn>
-            <v-btn :loading="downloading" color="#97BBE3" icon="mdi-download" style = "float: right" size="large" variant="flat" @click="downloadLeave"></v-btn>
+            <v-btn :loading="downloading" color="#97BBE3" icon="mdi-refresh" size="large" variant="flat" @click="getUserAttendance"></v-btn>
+            <v-btn color="#97BBE3" icon="mdi-magnify" size="large" variant="flat" @click="openAttendanceCalendarDialog"></v-btn>
+            <v-btn :loading="downloading" color="#97BBE3" icon="mdi-download" style = "float: right" size="large" variant="flat" @click="downloadAttendance"></v-btn>
+            <v-table height="300px" fixed-header>
+            <thead>
+              <tr>
+                <th class="text-center">
+                  <h3>Date</h3>
+                </th>
+                <th class="text-center">
+                  <h3>Scan In1</h3>
+                </th>
+                <th class="text-center">
+                  <h3>Scan Out1</h3>
+                </th>
+                <th class="text-center">
+                  <h3>Scan In2</h3>
+                </th>
+                <th class="text-center">
+                  <h3>Scan Out2</h3>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <tr
+                v-for="item in attendance"
+              >
+                <td class="text-center poetsen-one-regular">{{ item.Att_Date }}</td>
+                <td class="text-center poetsen-one-regular">{{ item.Fr_Time1 }}</td>
+                <td class="text-center poetsen-one-regular">{{ item.To_Time1 }}</td>
+                <td class="text-center poetsen-one-regular">{{ item.Fr_Time2 }}</td>
+                <td class="text-center poetsen-one-regular">{{ item.To_Time2 }}</td>
+              </tr>
+            </tbody>
+          </v-table>
             </v-card-title>
-            <v-data-table-server
-              v-model:items-per-page="itemsPerPage"
-              :headers="attendanceTableHeaders"
-              :items="serverItems"
-              :items-length="totalItems"
-              :loading="loading"
-              :search="search"
-              item-value="name"
-              @update:options="loadItems"
-            ></v-data-table-server>
+
           <v-divider></v-divider>
         </v-card>
 
@@ -576,16 +600,6 @@
                           cols="12"
                           sm="6"
                         >
-                        <!-- <v-text-field v-model="balance"
-                                      v-if="select === 'Annual Leave'"
-                                      suffix="Day(s)"
-                                      variant="solo"
-                                      label="Balance"
-                                      readonly
-
-                        >
-
-                      </v-text-field> -->
 
                         </v-col>
 
@@ -736,6 +750,87 @@
 
         </v-dialog>
 
+        <v-dialog v-model="attendanceCalendarDialog">
+
+        <v-fade-transition height="100%" hide-on-leave>
+          <v-card
+            class="mx-auto"
+            elevation="16"
+            width="31.25rem"
+            title="Attendance Range"
+          >
+            <template v-slot:append>
+              <v-btn icon="$close" variant="text" @click="attendanceCalendarDialog = false"></v-btn>
+            </template>
+
+            <v-divider></v-divider>
+
+            <div class="py-12 text-center">
+
+              <v-form>
+                <v-container>
+
+                  <v-card-title style="margin-top: -4.375rem;" class="text-h6 "></v-card-title>
+                  <v-row>
+                    <v-col
+                      cols="12"
+                      sm="6"
+                    >
+                    <VueDatePicker v-model="attendanceStartDate"
+                    :enable-time-picker="false"
+                    text-input
+                    teleport-center
+                    placeholder="From Date"
+                    input-class-name="dp-custom-input-range"
+                    @cleared="clearDuration"
+                    :is-24="false"
+                    time-picker-outline
+                    >
+                    </VueDatePicker>
+
+                    </v-col>
+
+                    <v-col
+                      cols="12"
+                      sm="6"
+                    >
+                    <VueDatePicker v-model="attendanceEndDate"
+                    :enable-time-picker="false"
+                    text-input
+                    teleport-center
+                    placeholder="From Date"
+                    input-class-name="dp-custom-input-range"
+                    @cleared="clearDuration"
+                    :is-24="false"
+                    time-picker-outline
+                    :disabled="!attendanceStartDate"
+                    >
+                    </VueDatePicker>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-form>
+
+            </div>
+
+            <div class="pa-4 text-end">
+              <v-btn
+              class="me-2 text-none"
+              color="pink"
+              prepend-icon="mdi-calendar-search"
+              :loading="loading"
+              size="x-large"
+              variant="flat"
+              @click="getAttendance(attendanceStartDate, attendanceEndDate)"
+              >
+              Search
+              </v-btn>
+            </div>
+          </v-card>
+        </v-fade-transition>
+
+        </v-dialog>
+
         <v-snackbar
         v-model="snackbar"
         :timeout="2000"
@@ -815,13 +910,25 @@ name: 'Home',
 data() {
   return {
 
+    show: false,
+
+    serverItems: [],
+
     badgeOpacity: 1, // Initial opacity
 
     attendanceTableHeaders: undefined,
 
+    attendanceCalendarDialog: false,
+
     today: undefined,
 
     new_password: {},
+
+    attendance: [],
+
+    attendanceStartDate: undefined,
+
+    attendanceEndDate: undefined,
 
     password: '',
 
@@ -885,17 +992,9 @@ created() {
   this.getUser();
   this.getUserLeaveApplication();
   this.getToday();
-
-  this.attendanceTableHeaders = [
-        { title: 'Date', key: 'att_date', align: 'start' },
-        { title: 'Scan In 1', key: 'name', align: 'end', sortable: false },
-        { title: 'Scan Out 1', key: 'calories', align: 'end', sortable: false },
-        { title: 'Scan In 2 ', key: 'fat', align: 'end', sortable: false },
-        { title: 'Scan Out 2', key: 'carbs', align: 'end', sortable: false },
-      ],
+  this.getUserAttendance();
 
   window.addEventListener('keydown', this.handleKey);
-
 
   if(localStorage.getItem('token') == "" || localStorage.getItem('token') == null){
     this.$router.push('/login')
@@ -951,6 +1050,49 @@ methods: {
     .catch((e) => {
         return e
     });
+  },
+
+  getAttendance(startDate, endDate) {
+
+    const query = this.attendance = {
+      startDate: this.dateFormat(startDate),
+      endDate: this.dateFormat(endDate)
+    };
+
+    axios.get(`/v1/attendance`, { params: { ...query } })
+    .then((r) => {
+        this.attendance = r.data;
+        return r
+    })
+    .catch((e) => {
+        return e
+    });
+
+    this.attendanceCalendarDialog = false;
+
+  },
+
+  getUserAttendance() {
+
+    this.loading = true;
+
+    const query = this.attendance = {
+      startDate: this.dateFormat(`2024-07-01`),
+      endDate: this.dateFormat(`2024-10-31`)
+    };
+
+    axios.get(`/v1/attendance`, { params: { ...query }, headers:{Authorization: 'Bearer ' + localStorage.getItem('token')} } )
+    .then((r) => {
+        this.attendance = r.data;
+        setTimeout(() => (this.loading = false), 1000)
+        return r
+    })
+    .catch((e) => {
+        return e
+    });
+
+    this.attendanceCalendarDialog = false;
+
   },
 
   getProfile() {
@@ -1107,6 +1249,10 @@ methods: {
     this.applyLeaveDialog = true;
   },
 
+  openAttendanceCalendarDialog() {
+    this.attendanceCalendarDialog = true;
+  },
+
   handleKey(event) {
     if (event.ctrlKey && event.key === 'c') {
 
@@ -1195,6 +1341,77 @@ methods: {
       URL.revokeObjectURL(link.href);
       document.body.removeChild(link);
 
+  },
+
+  downloadAttendance() {
+    this.downloading = true;
+    const printAttendance = this.attendance.map(att => ({
+      "Attendance Date" : att.Att_Date,
+      "Scan In 1" : att.Fr_Time1,
+      "Scan Out 1" : att.To_Time1,
+      "Scan In 2" : att.Fr_Time2,
+      "Scan Out 2" : att.To_Time2,
+    }));
+  
+    const ws = XLSX.utils.json_to_sheet(printAttendance);
+
+    const wb = XLSX.utils.book_new();
+      ws['!cols'] = [
+          { wch: 30 }, // A
+          { wch: 20 }, // B
+          { wch: 20 }, // C
+          { wch: 20 }, // D
+          { wch: 20 }, // E
+        ]
+      XLSX.utils.book_append_sheet(wb, ws, 'Record');
+
+      // Convert workbook to buffer (memory representation)
+      const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+      setTimeout(() => (this.downloading = false), 1000)
+
+      // Simulate a click on a hidden anchor element to trigger download
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+      link.download = `${this.user.employee_id}-Attedance.xlsx`; // Set filename
+      link.style.display = 'none'; // Hide the anchor element
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up the temporary URL object
+      URL.revokeObjectURL(link.href);
+      document.body.removeChild(link);
+
+  },
+
+
+  dateFormat (timetamp){
+
+  const date = new Date(timetamp);
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth() + 1;
+  const day = date.getUTCDate();
+
+  const formattedDate = `${year}-${month.toString()}-${day.toString()}`;
+
+  return formattedDate;
+  },
+
+  getCurrentYearAndMonthFirst() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1; // Months are zero-indexed, so add 1
+  const firstDay = new Date(year, month - 1, 1);
+
+  return `${year}-${month}-${firstDay}`;
+  },
+
+  getCurrentYearAndMonthLast() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1; // Months are zero-indexed, so add 1
+  const lastDay = new Date(year, month, 0);
+
+  return `${year}-${month}-${lastDay}`;
   }
 
 },

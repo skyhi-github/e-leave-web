@@ -1,6 +1,6 @@
 {
-  "name": "e-leave",
-  "version": "0.0.0",
+  "name": "OneStation",
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
