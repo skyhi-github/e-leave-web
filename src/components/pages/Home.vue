@@ -1079,8 +1079,8 @@ methods: {
     this.loading = true;
 
     const query = this.attendance = {
-      startDate: this.dateFormat(`2024-07-01`),
-      endDate: this.dateFormat(`2024-10-31`)
+      startDate: this.dateFormat(`2025-01-01`),
+      endDate: this.dateFormat(`2025-12-31`)
     };
 
     axios.get(`/v1/attendance`, { params: { ...query }, headers:{Authorization: 'Bearer ' + localStorage.getItem('token')} } )
