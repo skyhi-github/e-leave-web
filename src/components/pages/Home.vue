@@ -4,7 +4,13 @@
       dark
       prominent
     >
-      <v-toolbar-title class="lilita-one-regular">One Team, One Goal</v-toolbar-title>
+      <div class="d-flex align-center">
+        <img
+          height="50"
+          src="/src/assets/soccer.gif"
+        />
+        <v-toolbar-title class="lilita-one-regular">{{ displayText }}<span class="cursor">|</span></v-toolbar-title>
+      </div>
 
       <v-spacer></v-spacer>
 
@@ -917,6 +923,13 @@ data() {
 
     show: false,
 
+    displayText: '',
+    phrases: ['Win Hanverky', 'Win Together', 'One Team, One Goal', 'Bowker Garment Factory (Cambodia)',],
+    phraseIndex: 0,
+    isDeleting: false,
+    typewriterIndex: 0,
+    typewriterTimer: null,
+
     serverItems: [],
 
     badgeOpacity: 1, // Initial opacity
@@ -998,6 +1011,7 @@ created() {
   this.getUserLeaveApplication();
   this.getToday();
   this.getUserAttendance();
+  this.startTypewriter();
 
   window.addEventListener('keydown', this.handleKey);
 
@@ -1008,6 +1022,42 @@ created() {
 },
 
 methods: {
+
+  startTypewriter() {
+    const typeSpeed = 100;
+    const deleteSpeed = 50;
+    const pauseBeforeDelete = 2000;
+    const pauseBeforeType = 500;
+
+    const type = () => {
+      const currentPhrase = this.phrases[this.phraseIndex];
+      
+      if (!this.isDeleting) {
+        if (this.typewriterIndex < currentPhrase.length) {
+          this.displayText = currentPhrase.substring(0, this.typewriterIndex + 1);
+          this.typewriterIndex++;
+          this.typewriterTimer = setTimeout(type, typeSpeed);
+        } else {
+          this.typewriterTimer = setTimeout(() => {
+            this.isDeleting = true;
+            type();
+          }, pauseBeforeDelete);
+        }
+      } else {
+        if (this.typewriterIndex > 0) {
+          this.displayText = currentPhrase.substring(0, this.typewriterIndex - 1);
+          this.typewriterIndex--;
+          this.typewriterTimer = setTimeout(type, deleteSpeed);
+        } else {
+          this.isDeleting = false;
+          this.phraseIndex = (this.phraseIndex + 1) % this.phrases.length;
+          this.typewriterTimer = setTimeout(type, pauseBeforeType);
+        }
+      }
+    };
+
+    type();
+  },
 
   getToday() {
     const now = new Date();
@@ -1528,6 +1578,20 @@ beforeDestroy() {
 @import url('https://fonts.googleapis.com/css2?family=Sofia+Sans+Condensed:ital,wght@0,1..1000;1,1..1000&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=SUSE:wght@100..800&display=swap');
 @import url('href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,10');
+
+.cursor {
+  animation: blink 0.7s infinite;
+  font-weight: 100;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
 
 .noto-sans {
   font-family: "Noto Sans", sans-serif;
