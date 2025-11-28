@@ -8,6 +8,13 @@
           max-width="500"
           src="/src/assets/bowker-logo.svg"
         />
+        <img
+          class="mx-auto center"
+          height="80"
+          lazy-src="/src/assets/bowker-logo.svg"
+          max-width="500"
+          src="/src/assets/OG.svg"
+        />
         <v-card-title>
           <h1 style="text-align: center;">Login</h1>
         </v-card-title>
