@@ -16,7 +16,6 @@
           src="/src/assets/OG.svg"
         />
         <v-card-title>
-          <h1 style="text-align: center;">One Goal</h1>
         </v-card-title>
         <v-card-text>
           <v-text-field
