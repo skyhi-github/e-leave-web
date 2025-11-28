@@ -15,8 +15,6 @@
           max-width="500"
           src="/src/assets/OG.svg"
         />
-        <v-card-title>
-        </v-card-title>
         <v-card-text>
           <v-text-field
             v-model="employee_id"
