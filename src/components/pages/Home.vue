@@ -4,7 +4,7 @@
       dark
       prominent
     >
-      <v-toolbar-title class="lilita-one-regular">OneStation</v-toolbar-title>
+      <v-toolbar-title class="lilita-one-regular">One Team, One Goal</v-toolbar-title>
 
       <v-spacer></v-spacer>
 
