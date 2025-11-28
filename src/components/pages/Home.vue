@@ -40,19 +40,7 @@
           >
          <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-calendar-arrow-left" value="option-1">E-Leave</v-tab>
          <v-divider></v-divider>
-         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-file-chart" value="option-4" disabled><v-badge floating color="yellow-lighten-1" content="Coming Soon"></v-badge>Report</v-tab>
-         <v-divider></v-divider>
-         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-calendar-month" value="option-5" disabled><v-badge floating color="yellow-lighten-1" content="Coming Soon"></v-badge>Calendar</v-tab>
-         <v-divider></v-divider>
-         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-rss-box" value="option-6" disabled><v-badge floating color="yellow-lighten-1" content="Coming Soon"></v-badge>Announcement</v-tab>
-         <v-divider></v-divider>
-         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-cash-fast" value="option-7" disabled><v-badge floating color="yellow-lighten-1" content="Coming Soon"></v-badge>Payslip</v-tab>
-         <v-divider></v-divider>
-         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-file-account" value="option-7" disabled><v-badge floating color="yellow-lighten-1" content="Coming Soon"></v-badge>Visitor Log</v-tab>
-         <v-divider></v-divider>
-         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-account-check" value="option-8" disabled><v-badge floating color="yellow-lighten-1" content="Coming Soon"></v-badge>Attendance</v-tab>
-         <v-divider></v-divider>
-         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-account-group" value="option-9" disabled><v-badge floating color="yellow-lighten-1" content="Coming Soon"></v-badge>Teams</v-tab>
+         <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-account-check" value="option-8">Attendance</v-tab>
          <v-divider></v-divider>
          <v-tab class="chakra-petch-semibold" size="x-large" prepend-icon="mdi-account-circle" value="option-2"  @click="getEmployee(); getProfile(); getTeam()">Profile</v-tab>
         </v-tabs>
@@ -69,8 +57,7 @@
              <v-btn :loading="loading" color="#97BBE3" icon="mdi-refresh" size="large" variant="flat"  @click="getUserLeaveApplication"></v-btn>
              <v-btn color="#97BBE3" icon="mdi-plus" size="large" variant="flat" @click="openDialog"></v-btn>
              <v-btn :loading="downloading" color="#97BBE3" icon="mdi-download" style = "float: right" size="large" variant="flat"  @click="downloadLeave"></v-btn>
-            </v-card-title>
-          <v-table>
+            <v-table height="300px" fixed-header>
             <thead>
               <tr>
                 <th class="text-center">
@@ -104,12 +91,13 @@
               </tr>
             </tbody>
           </v-table>
+            </v-card-title>
+
           <v-divider></v-divider>
         </v-card>
 
-        <v-dialog v-model="applyLeaveDialog">
+        <v-dialog v-model="applyLeaveDialog" transition="dialog-top-transition">
 
-            <v-fade-transition height="100%" hide-on-leave>
               <v-card
                 class="mx-auto"
                 elevation="16"
@@ -321,7 +309,6 @@
                   </v-btn>
                 </div>
               </v-card>
-            </v-fade-transition>
 
         </v-dialog>
 
@@ -544,9 +531,8 @@
           <v-divider></v-divider>
         </v-card>
 
-        <v-dialog v-model="applyLeaveDialog">
+        <v-dialog v-model="applyLeaveDialog" transition="dialog-top-transition">
 
-            <v-fade-transition height="100%" hide-on-leave>
               <v-card
                 class="mx-auto"
                 elevation="16"
@@ -748,13 +734,11 @@
                   </v-btn>
                 </div>
               </v-card>
-            </v-fade-transition>
 
         </v-dialog>
 
-        <v-dialog v-model="attendanceCalendarDialog">
+        <v-dialog v-model="attendanceCalendarDialog" transition="dialog-top-transition">
 
-        <v-fade-transition height="100%" hide-on-leave>
           <v-card
             class="mx-auto"
             elevation="16"
@@ -829,7 +813,6 @@
               </v-btn>
             </div>
           </v-card>
-        </v-fade-transition>
 
         </v-dialog>
 
@@ -857,10 +840,15 @@
 
       </v-main>
 
-      <v-navigation-drawer temporary location="right" v-model="leaveTrackDialog">
+      <v-dialog v-model="leaveTrackDialog" transition="dialog-top-transition">
 
-        <v-card color="#4182CB">
-          <v-card-title>Leave Track
+        <v-card
+          class="mx-auto"
+          elevation="16"
+          width="50rem"
+          title="Leave Track"
+        >
+          <template v-slot:append>
             <v-btn
               v-if="delete"
               class="ma-2"
@@ -869,32 +857,47 @@
               variant="text"
               @click="deleteLeaveApplication"
             ></v-btn>
-          </v-card-title>
+            <v-btn icon="$close" variant="text" @click="leaveTrackDialog = false"></v-btn>
+          </template>
+
+          <v-divider></v-divider>
+
+          <div class="py-12 text-center">
+            <v-container class="leave-track">
+              <v-timeline direction="horizontal" side="end">
+
+                  <v-timeline-item
+                    size="large"
+                    v-for="item in timelineItems"
+                    :key="item.leave_app_status"
+                    :dot-color="item.color"
+                  >
+                    <template v-slot:opposite>
+                      <strong>{{ item.leave_app_status }}</strong>
+                    </template>
+                    <div class="d-flex flex-column align-center">
+                      <div class="text-caption">{{ item.create_at }}</div>
+                      <v-btn 
+                        v-if="item.leave_app_status === 'HR Approved'" 
+                        :loading="loading" 
+                        color="success" 
+                        class="mt-2" 
+                        size="small"
+                        prepend-icon="mdi-download"
+                        @click="downloadLeaveApproval(item.download)"
+                      >
+                        Download
+                      </v-btn>
+                      <div v-else style="height: 36px; margin-top: 8px;"></div>
+                    </div>
+                  </v-timeline-item>
+
+              </v-timeline>
+            </v-container>
+          </div>
         </v-card>
 
-        <v-container class="leave-track">
-          <v-timeline align="start" side="end">
-
-              <v-timeline-item
-                size="small"
-                v-for="item in timelineItems"
-                :key="item.leave_app_status"
-                :dot-color="item.color"
-              >
-                <div class="d-flex">
-                  <strong class="me-4">{{ item.leave_app_status }}</strong>
-                </div>
-                <div class="d-flex">
-                  <i class="me-4">{{ item.create_at }}</i>
-                </div>
-                <div v-if="item.leave_app_status === 'HR Approved'" class="d-flex">
-                  <v-btn :loading="loading" color="success" class="me-4 mdi mdi-download" @click="downloadLeaveApproval(item.download)">Download</v-btn>
-                </div>
-              </v-timeline-item>
-
-          </v-timeline>
-        </v-container>
-      </v-navigation-drawer>
+      </v-dialog>
     </v-layout>
   </v-card>
 </template>
