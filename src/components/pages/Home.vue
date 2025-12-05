@@ -159,16 +159,16 @@
                           cols="12"
                           sm="6"
                         >
-                        <!-- <v-text-field v-model="balance"
-                                      v-if="select === 'Annual Leave'"
-                                      suffix="Day(s)"
-                                      variant="solo"
-                                      label="Balance"
-                                      readonly
-
-                        >
-
-                      </v-text-field> -->
+                       <v-select
+                            v-model="selectedApprover"
+                            :items="approvers"
+                            item-title="name"
+                            item-value="employee_id"
+                            label="Select Approver"
+                            variant="outlined"
+                            prepend-inner-icon="mdi-account-check"
+                            :disabled="!select"
+                        ></v-select>
 
                         </v-col>
 
@@ -718,21 +718,6 @@
                             counter
                             :disabled="!endDate"
                           ></v-text-field>
-                        </v-col>
-                      </v-row>
-
-                      <v-row>
-                        <v-col cols="12">
-                          <v-select
-                            v-model="selectedApprover"
-                            :items="approvers"
-                            item-title="name"
-                            item-value="employee_id"
-                            label="Select Approver"
-                            variant="outlined"
-                            prepend-inner-icon="mdi-account-check"
-                            :disabled="!reason"
-                          ></v-select>
                         </v-col>
                       </v-row>
                     </v-container>
