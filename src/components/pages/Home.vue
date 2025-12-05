@@ -720,6 +720,21 @@
                           ></v-text-field>
                         </v-col>
                       </v-row>
+
+                      <v-row>
+                        <v-col cols="12">
+                          <v-select
+                            v-model="selectedApprover"
+                            :items="approvers"
+                            item-title="name"
+                            item-value="employee_id"
+                            label="Select Approver"
+                            variant="outlined"
+                            prepend-inner-icon="mdi-account-check"
+                            :disabled="!reason"
+                          ></v-select>
+                        </v-col>
+                      </v-row>
                     </v-container>
                   </v-form>
 
@@ -734,7 +749,7 @@
                   size="x-large"
                   variant="flat"
                   @click="createLeaveApplication"
-                  :disabled="!reason"
+                  :disabled="!selectedApprover"
                   >
                   Send
                   </v-btn>
@@ -1003,6 +1018,10 @@ data() {
       { title: 'Personal Leave' }
     ],
 
+    approvers: [],
+
+    selectedApprover: null,
+
   };
 },
 
@@ -1089,6 +1108,17 @@ methods: {
     axios.get(`/v1/team/${this?.user?.department_name}`)
     .then((r) => {
         this.team = r.data;
+        return r
+    })
+    .catch((e) => {
+        return e
+    });
+  },
+
+  getApprovers() {
+    axios.get('/v1/approvers', { headers:{Authorization: 'Bearer ' + localStorage.getItem('token')}})
+    .then((r) => {
+        this.approvers = r.data;
         return r
     })
     .catch((e) => {
