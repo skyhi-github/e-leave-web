@@ -10,7 +10,7 @@ import axios from 'axios';
 const app = createApp(App)
 registerPlugins(app)
 
-axios.defaults.baseURL = 'http://localhost:4000'
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const router = createRouter({
     history: createWebHistory(),
