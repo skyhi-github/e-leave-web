@@ -856,7 +856,7 @@
         >
           <template v-slot:append>
             <v-btn
-              v-if="delete"
+              v-if="deleteDialog"
               class="ma-2"
               color="deep-orange-accent-3"
               icon="mdi-trash-can"
@@ -906,9 +906,12 @@
       </v-dialog>
     </v-layout>
   </v-card>
+      <ChatWidget />
 </template>
 
 <script>
+
+    import ChatWidget from '@/components/ChatWidget.vue'
 
 import axios from 'axios';
 import FileSaver from 'file-saver';
@@ -970,7 +973,7 @@ data() {
 
     deleteItem: undefined,
 
-    delete: false,
+  deleteDialog: false,
 
     profileDialog: false,
 
@@ -1196,7 +1199,7 @@ methods: {
     axios.get(`/v1/leave/${id?.hash_id}`)
       .then((r) => {
          this.timelineItems = r.data;
-         this.delete = this.timelineItems?.length === 1;
+         this.deleteDialog = this.timelineItems?.length === 1;
          this.leaveTrackDialog = true;
          return r
       })
