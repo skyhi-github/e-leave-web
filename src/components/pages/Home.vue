@@ -14,8 +14,37 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn icon color="red" @click="logout">
-        <v-icon>mdi-export</v-icon>
+      <span class="toolbar-divider" aria-hidden="true">|</span>
+
+      <v-badge
+        :content="alertsCount"
+        color="pink"
+        location="top end"
+        offset-x="10"
+        offset-y="10"
+        :model-value="alertsCount > 0"
+      >
+        <v-btn icon color="blue" aria-label="Notifications">
+          <v-icon>mdi-bell</v-icon>
+        </v-btn>
+      </v-badge>
+        <v-btn icon color="blue" aria-label="Notifications">
+          <v-icon>mdi-theme-light-dark</v-icon>
+        </v-btn>
+        <v-btn icon color="blue" aria-label="Notifications">
+          <v-icon>mdi-translate</v-icon>
+        </v-btn>
+
+      <div class="toolbar-divider toolbar-divider--full" aria-hidden="true"></div>
+
+      <v-btn
+        color="indigo-darken-3"
+        variant="flat"
+        append-icon="mdi-export"
+        class="logout-btn"
+       
+      >
+        Logout
       </v-btn>
   </v-toolbar>
 
@@ -995,6 +1024,8 @@ data() {
 
     leave: {},
 
+    alertsCount: 1,
+
     leavePayload: {},
 
     snackbar: false,
@@ -1600,6 +1631,25 @@ beforeDestroy() {
 .cursor {
   animation: blink 0.7s infinite;
   font-weight: 100;
+}
+
+.toolbar-divider {
+  font-size: 1.5rem;
+  margin: 0 8px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.toolbar-divider--full {
+  width: 1px;
+  height: 100%;
+  margin: 0 12px;
+  background: rgba(255, 255, 255, 0.4);
+  align-self: stretch;
+}
+
+.logout-btn {
+  text-transform: none;
+  font-weight: 600;
 }
 
 @keyframes blink {
