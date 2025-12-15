@@ -42,7 +42,19 @@
             class="msg"
             :class="m.role"
           >
-            <div class="bubble">{{ m.text }}</div>
+            <div class="bubble" :class="{ 'typing-bubble': m.role === 'bot' && !m.text }">
+              <template v-if="m.role === 'bot' && !m.text">
+                <span class="chat-fab-dots typing-dots" aria-hidden="true">
+                  <span class="chat-fab-dot" />
+                  <span class="chat-fab-dot" />
+                  <span class="chat-fab-dot" />
+                </span>
+                <span class="sr-only">Assistant is typing</span>
+              </template>
+              <template v-else>
+                {{ m.text }}
+              </template>
+            </div>
           </div>
         </div>
 
@@ -113,6 +125,7 @@ const welcomeFullText = 'Hi! How can I help you today?'
 const welcomeTyped = ref(false)
 
 let typingTimer: number | undefined
+let typingResolve: (() => void) | null = null
 
 const messages = ref<ChatMessage[]>([
   { id: 'welcome', role: 'bot', text: '' },
@@ -132,7 +145,7 @@ function open() {
     if (!welcomeTyped.value) {
       const welcomeMsg = messages.value.find((m) => m.id === 'welcome')
       if (welcomeMsg) {
-        typeIntoMessage(welcomeMsg, welcomeFullText)
+        void typeIntoMessage(welcomeMsg, welcomeFullText)
         welcomeTyped.value = true
       }
     }
@@ -163,28 +176,36 @@ function scrollToBottom() {
 function stopTyping() {
   if (typingTimer) window.clearInterval(typingTimer)
   typingTimer = undefined
+  if (typingResolve) {
+    typingResolve()
+    typingResolve = null
+  }
 }
 
-function typeIntoMessage(message: ChatMessage, fullText: string) {
+function typeIntoMessage(message: ChatMessage, fullText: string): Promise<void> {
   stopTyping()
 
   message.text = ''
   let i = 0
 
-  // Slightly variable cadence to feel more "GPT-like".
-  typingTimer = window.setInterval(() => {
-    const step = Math.random() < 0.12 ? 2 : 1
-    i = Math.min(fullText.length, i + step)
-    message.text = fullText.slice(0, i)
-    scrollToBottom()
+  return new Promise<void>((resolve) => {
+    typingResolve = resolve
 
-    if (i >= fullText.length) {
-      stopTyping()
-    }
-  }, 18)
+    // Slightly variable cadence to feel more "GPT-like".
+    typingTimer = window.setInterval(() => {
+      const step = Math.random() < 0.12 ? 2 : 1
+      i = Math.min(fullText.length, i + step)
+      message.text = fullText.slice(0, i)
+      scrollToBottom()
+
+      if (i >= fullText.length) {
+        stopTyping()
+      }
+    }, 18)
+  })
 }
 
-function send(textOverride?: string) {
+async function send(textOverride?: string) {
   const text = (textOverride ?? draft.value).trim()
   if (!text) return
 
@@ -201,10 +222,15 @@ function send(textOverride?: string) {
     text: '',
   }
   messages.value.push(botMsg)
-  nextTick(() => typeIntoMessage(botMsg, `You said: ${text}`))
-
   draft.value = ''
-  nextTick(() => scrollToBottom())
+
+  await nextTick()
+  scrollToBottom()
+
+  await typeIntoMessage(botMsg, `You said: ${text}`)
+
+  await nextTick()
+  scrollToBottom()
 }
 
 onBeforeUnmount(() => {
@@ -355,6 +381,39 @@ onBeforeUnmount(() => {
   color: #111827;
   border: 1px solid rgba(17, 24, 39, 0.08);
   border-bottom-left-radius: 6px;
+}
+
+.bubble.typing-bubble {
+  border-style: dashed;
+  border-color: rgba(17, 24, 39, 0.25);
+}
+
+.typing-bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.typing-bubble .chat-fab-dots {
+  margin-top: 0;
+  gap: 6px;
+}
+
+.typing-dots .chat-fab-dot {
+  background: rgb(var(--v-theme-primary));
+  opacity: 0.45;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .chat-input {
