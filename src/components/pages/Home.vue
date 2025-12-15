@@ -42,7 +42,7 @@
         variant="flat"
         append-icon="mdi-export"
         class="logout-btn"
-       
+       @click="logout()"
       >
         Logout
       </v-btn>
