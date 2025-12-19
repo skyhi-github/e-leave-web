@@ -48,8 +48,8 @@
      <b> {{ message }} </b>
     </v-alert>
     <br>
-          <v-divider><v-icon icon="mdi-robot-love"></v-icon></v-divider>
-          <v-btn color="green-darken-3" block rounded depressed @click="register">AI REGISTER</v-btn>
+          <v-divider><v-icon icon="mdi-robot-love" size="32" class="robot-pulse" aria-hidden="true"></v-icon></v-divider>
+          <v-btn class="ai-register-btn" color="green-darken-3" block rounded depressed @click="register">AI REGISTER</v-btn>
         </v-card-text>
       </v-card>
     </v-app>
@@ -114,6 +114,25 @@ export default {
 <style scoped>
 .v-card {
   background-color: rgba(0, 0, 0, 0.1);
+}
+
+.robot-pulse {
+  display: inline-block;
+  transform-origin: center;
+  animation: robot-pulse 900ms ease-in-out infinite alternate;
+}
+
+@keyframes robot-pulse {
+  from { transform: scale(0.9); }
+  to { transform: scale(1.25); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .robot-pulse { animation: none; }
+}
+
+.ai-register-btn {
+  margin-top: 12px;
 }
 .center {
 display: block;
