@@ -91,6 +91,7 @@
               Leave Record 
              <v-btn :loading="loading" color="#97BBE3" icon="mdi-refresh" size="large" variant="flat"  @click="getUserLeaveApplication"></v-btn>
              <v-btn color="#97BBE3" icon="mdi-plus" size="large" variant="flat" @click="openDialog"></v-btn>
+             <v-btn color="#97BBE3" icon="mdi-cloud-search-outline" size="large" variant="flat" ></v-btn>
              <v-btn :loading="downloading" color="#97BBE3" icon="mdi-download" style = "float: right" size="large" variant="flat"  @click="downloadLeave"></v-btn>
             <v-table height="300px" fixed-header>
             <thead>
