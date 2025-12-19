@@ -48,8 +48,8 @@
      <b> {{ message }} </b>
     </v-alert>
     <br>
-          <v-divider><v-icon icon="mdi-account-plus"></v-icon></v-divider>
-          <v-btn color="green-darken-3" block rounded depressed @click="register">Register</v-btn>
+          <v-divider><v-icon icon="mdi-robot-love"></v-icon></v-divider>
+          <v-btn color="green-darken-3" block rounded depressed @click="register">AI REGISTER</v-btn>
         </v-card-text>
       </v-card>
     </v-app>
