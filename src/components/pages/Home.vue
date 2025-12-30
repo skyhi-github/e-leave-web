@@ -1117,6 +1117,8 @@ methods: {
     axios.get('/v1/user', { headers:{Authorization: 'Bearer ' + localStorage.getItem('token')}})
     .then((r) => {
         this.user = r.data;
+        this.selectedApprover = this.user?.manager_name;
+        this.approvers[0] = this.user?.manager_email;
         return r
     })
     .catch((e) => {
