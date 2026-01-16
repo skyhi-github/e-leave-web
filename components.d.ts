@@ -7,8 +7,9 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    ApplyLeaveDialog: typeof import('./src/components/pages/ApplyLeaveDialog.vue')['default']
+    ChatWidget: typeof import('./src/components/ChatWidget.vue')['default']
     Home: typeof import('./src/components/pages/Home.vue')['default']
-    HR: typeof import('./src/components/pages/HR.vue')['default']
     Login: typeof import('./src/components/pages/Login.vue')['default']
     Register: typeof import('./src/components/pages/Register.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
