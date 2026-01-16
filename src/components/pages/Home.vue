@@ -56,7 +56,7 @@
       >
         <v-list>
           <v-list-item
-            prepend-avatar="/src/assets/bowker-logo.svg"
+            :prepend-avatar="drawerAvatarUrl"
           >
           <v-list-item-title class="lilita-one-regular">
            {{ user.first_name }} {{ user.last_name }}<v-btn variant="text" icon="mdi-content-copy" size="x-small" style="float: flex-end;" />
@@ -954,10 +954,14 @@ name: 'Home',
 data() {
   return {
 
+    bowkerLogoAvatar: '/src/assets/bowker-logo.svg',
+
+    drawerAvatarUrl: '/src/assets/bowker-logo.svg',
+    avatarLoadToken: 0,
+
     show: false,
 
     displayText: '',
-    phrases: ['Win Hanverky', 'Win Together', 'One Team, One Goal', 'Bowker Garment Factory (Cambodia)',],
     phraseIndex: 0,
     isDeleting: false,
     typewriterIndex: 0,
@@ -1061,6 +1065,27 @@ created() {
 },
 
 methods: {
+
+  updateDrawerAvatar(employeeId) {
+    if (!employeeId) {
+      this.drawerAvatarUrl = this.bowkerLogoAvatar;
+      return;
+    }
+
+    const candidateUrl = `https://raw.githubusercontent.com/skyhi-github/employee-pictures/refs/heads/master/Picture/${encodeURIComponent(employeeId)}.JPG`;
+
+    const loadToken = ++this.avatarLoadToken;
+    const img = new Image();
+    img.onload = () => {
+      if (loadToken !== this.avatarLoadToken) return;
+      this.drawerAvatarUrl = candidateUrl;
+    };
+    img.onerror = () => {
+      if (loadToken !== this.avatarLoadToken) return;
+      this.drawerAvatarUrl = this.bowkerLogoAvatar;
+    };
+    img.src = candidateUrl;
+  },
 
   startTypewriter() {
     const typeSpeed = 100;
@@ -1523,7 +1548,36 @@ methods: {
 
 },
 
+watch: {
+  'user.employee_id': {
+    immediate: true,
+    handler(employeeId) {
+      this.updateDrawerAvatar(employeeId);
+    },
+  },
+},
+
 computed: {
+
+  phrases() {
+    const fullName = [this.user?.first_name, this.user?.last_name].filter(Boolean).join(' ');
+    const greeting = fullName ? `Hello ${fullName}` : 'Hello';
+
+    return [
+      greeting,
+      'Win Hanverky',
+      'Win Together',
+      'One Team, One Goal',
+      'Bowker Garment Factory (Cambodia)',
+    ];
+  },
+
+  userProfilePicture() {
+    const employeeId = this.user?.employee_id;
+    if (!employeeId) return this.bowkerLogoAvatar;
+
+    return `https://raw.githubusercontent.com/skyhi-github/employee-pictures/refs/heads/master/Picture/${encodeURIComponent(employeeId)}.JPG`;
+  },
 
   startHoursArray() {
     const arr = [];
