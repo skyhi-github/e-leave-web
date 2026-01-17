@@ -1,9 +1,24 @@
 <template>
   <v-toolbar
-      image="/src/assets/header.gif"
-      dark
+      class="top-nav"
+      color="primary"
+      elevation="2"
       prominent
     >
+      <div class="nav-bubbles" aria-hidden="true">
+        <span style="--size: 10px; --left: 6%; --delay: -1.2s; --duration: 6.5s;"></span>
+        <span style="--size: 18px; --left: 14%; --delay: -3.8s; --duration: 8s;"></span>
+        <span style="--size: 12px; --left: 22%; --delay: -2.4s; --duration: 7.2s;"></span>
+        <span style="--size: 22px; --left: 30%; --delay: -5.1s; --duration: 9s;"></span>
+        <span style="--size: 14px; --left: 38%; --delay: -0.6s; --duration: 6.8s;"></span>
+        <span style="--size: 9px;  --left: 46%; --delay: -4.2s; --duration: 7.8s;"></span>
+        <span style="--size: 20px; --left: 54%; --delay: -2.9s; --duration: 8.6s;"></span>
+        <span style="--size: 12px; --left: 62%; --delay: -1.7s; --duration: 6.9s;"></span>
+        <span style="--size: 24px; --left: 70%; --delay: -5.8s; --duration: 9.5s;"></span>
+        <span style="--size: 11px; --left: 78%; --delay: -3.1s; --duration: 7.1s;"></span>
+        <span style="--size: 16px; --left: 86%; --delay: -2.1s; --duration: 8.2s;"></span>
+        <span style="--size: 9px;  --left: 93%; --delay: -4.9s; --duration: 7.6s;"></span>
+      </div>
       <div class="d-flex align-center">
         <img
           height="50"
@@ -28,7 +43,7 @@
           <v-icon>mdi-bell</v-icon>
         </v-btn>
       </v-badge>
-        <v-btn icon color="blue" aria-label="Notifications">
+        <v-btn icon color="blue" aria-label="Theme Toggle" @click="toggleTheme">
           <v-icon>mdi-theme-light-dark</v-icon>
         </v-btn>
         <v-btn icon color="blue" aria-label="Notifications">
@@ -943,6 +958,8 @@
 
     import ChatWidget from '@/components/ChatWidget.vue'
 
+import { useTheme } from 'vuetify'
+
 import axios from 'axios';
 import FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
@@ -950,6 +967,18 @@ import * as XLSX from 'xlsx';
 export default {
 
 name: 'Home',
+
+setup() {
+  const theme = useTheme();
+
+  const toggleTheme = () => {
+    const next = theme.global.name.value === 'dark' ? 'light' : 'dark';
+    theme.global.name.value = next;
+    localStorage.setItem('theme', next);
+  };
+
+  return { toggleTheme };
+},
 
 data() {
   return {
@@ -1688,6 +1717,133 @@ beforeDestroy() {
 .cursor {
   animation: blink 0.7s infinite;
   font-weight: 100;
+}
+
+.top-nav {
+  background-image: none !important;
+  background: linear-gradient(
+    90deg,
+    rgb(var(--v-theme-primary)),
+    rgb(var(--v-theme-primary)) 55%,
+    rgb(var(--v-theme-secondary))
+  ) !important;
+}
+
+/* Bubble pop overlay */
+.top-nav .v-toolbar__content {
+  position: relative;
+  overflow: hidden;
+}
+
+.top-nav .nav-bubbles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.top-nav .v-toolbar__content > :not(.nav-bubbles) {
+  position: relative;
+  z-index: 1;
+}
+
+.top-nav .nav-bubbles span {
+  --size: 14px;
+  --left: 50%;
+  --delay: 0s;
+  --duration: 8s;
+
+  position: absolute;
+  left: var(--left);
+  bottom: -30px;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 6px;
+  opacity: 0;
+
+  /* Bowker logo “bubble” */
+  background-color: rgba(255, 255, 255, 0.72);
+  -webkit-mask-image: url('../../assets/bowker-logo.svg');
+  mask-image: url('../../assets/bowker-logo.svg');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  filter:
+    drop-shadow(0 6px 14px rgba(0, 0, 0, 0.20))
+    drop-shadow(0 0 0 rgba(255, 255, 255, 0.15));
+
+  animation: bubbleRise var(--duration) linear infinite;
+  animation-delay: var(--delay);
+}
+
+.top-nav .nav-bubbles span::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  opacity: 0;
+  transform: scale(0.6);
+
+  /* pop flash: same logo, larger + fade */
+  background-color: rgba(255, 255, 255, 0.9);
+  -webkit-mask-image: url('../../assets/bowker-logo.svg');
+  mask-image: url('../../assets/bowker-logo.svg');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.25));
+
+  animation: bubblePop var(--duration) linear infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes bubbleRise {
+  0% {
+    transform: translate(-50%, 0) scale(0.9);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+  }
+  70% {
+    opacity: 0.55;
+  }
+  92% {
+    transform: translate(calc(-50% + 12px), -120px) scale(1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(calc(-50% + 18px), -140px) scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes bubblePop {
+  0%, 86% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  92% {
+    opacity: 0.55;
+    transform: scale(1.25);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .top-nav .nav-bubbles span,
+  .top-nav .nav-bubbles span::after {
+    animation: none !important;
+  }
 }
 
 .toolbar-divider {
